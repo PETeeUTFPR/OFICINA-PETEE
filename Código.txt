@@ -20,20 +20,19 @@ unsigned long ultimoTempoDebounce = 0;
 unsigned long delayDebounce = 50; // 50ms para considerar leitura estável
 
 // --- Função para piscar LED ---
-void piscarLed() {
-  for(int i=0;i<10;i++){
+void acenderLED() {
     digitalWrite(pinoLed, 1);
-    delay(500);
+    //delay(500);
+}
+void apagarLED() {
     digitalWrite(pinoLed, 0);
-    delay(500);
-  }
-  
+    //delay(500);
 }
 
 // --- Configuração Inicial ---
 void setup() {
   Serial.begin(115200);
-  SerialBT.begin("ESP32GRE");
+  SerialBT.begin("COLOCARNOME");
 
   pinMode(pinoLed, OUTPUT);
   pinMode(pinoSwitch, INPUT_PULLUP); // Usa pull-up interno para evitar flutuação
@@ -61,7 +60,7 @@ void loop() {
       // Apenas reage quando o switch estiver na posição "ativa" (conectado a GND → LOW)
       if (estadoSwitch == LOW) {
         Serial.println("Switch na posição ativa!");
-        piscarLed();
+        //piscarLed();
         SerialBT.println("BOTAO_PRESSIONADO"); // envia pro App Inventor
       } 
       else {
@@ -83,9 +82,14 @@ void loop() {
     Serial.println(dadosRecebidos);
 
     if (dadosRecebidos == "1") {
-      Serial.println("Acionamento virtual recebido. Piscando o LED...");
-      piscarLed();
-      SerialBT.println("LED_PISCOU");
+      Serial.println("Acende LED");
+      acenderLED();
+      SerialBT.println("LED aceso");
+    }
+    if (dadosRecebidos == "0") {
+      Serial.println("Apaga LED");
+      apagarLED();
+      SerialBT.println("LED apagado");
     }
   }
  delay(20); // Delay do watchdog
