@@ -1,0 +1,93 @@
+#include "BluetoothSerial.h"
+
+// Verifica se o Bluetooth está habilitado nas configurações do projeto
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth ta desligado, provavelmente desabilitado na placa, ou no celular.
+#endif
+
+BluetoothSerial SerialBT;
+
+// --- Mapeamento de Pinos ---
+const int pinoLed = 2;      // Pino do LED embutido da ESP32
+const int pinoSwitch = 4;   // Pino onde o switch será conectado
+
+// --- Variáveis de Controle ---
+String dadosRecebidos = "";
+
+int estadoSwitch;
+int ultimoEstadoSwitch = HIGH; // Pull-up mantém HIGH por padrão
+unsigned long ultimoTempoDebounce = 0;
+unsigned long delayDebounce = 50; // 50ms para considerar leitura estável
+
+// --- Função para piscar LED ---
+void piscarLed() {
+  for(int i=0;i<10;i++){
+    digitalWrite(pinoLed, 1);
+    delay(500);
+    digitalWrite(pinoLed, 0);
+    delay(500);
+  }
+  
+}
+
+// --- Configuração Inicial ---
+void setup() {
+  Serial.begin(115200);
+  SerialBT.begin("ESP32GRE");
+
+  pinMode(pinoLed, OUTPUT);
+  pinMode(pinoSwitch, INPUT_PULLUP); // Usa pull-up interno para evitar flutuação
+
+  digitalWrite(pinoLed, LOW);
+
+  Serial.println("ESP32 pronto. Conecte ao Bluetooth 'ESP32_Botao_LED'.");
+}
+
+// --- Loop Principal ---
+void loop() {
+
+  // --- Leitura do switch ---
+  int leituraAtual = digitalRead(pinoSwitch);
+
+  // Debounce
+  if (leituraAtual != ultimoEstadoSwitch) {
+    ultimoTempoDebounce = millis();
+  }
+
+  if ((millis() - ultimoTempoDebounce) > delayDebounce) {
+    if (leituraAtual != estadoSwitch) {
+      estadoSwitch = leituraAtual;
+
+      // Apenas reage quando o switch estiver na posição "ativa" (conectado a GND → LOW)
+      if (estadoSwitch == LOW) {
+        Serial.println("Switch na posição ativa!");
+        piscarLed();
+        SerialBT.println("BOTAO_PRESSIONADO"); // envia pro App Inventor
+      } 
+      else {
+        Serial.println("Switch na posição inativa.");
+        SerialBT.println("BOTAO_SOLTO"); // envia estado inativo
+      }
+    }
+  }
+
+
+  ultimoEstadoSwitch = leituraAtual;
+
+  // --- Verificação de comandos via Bluetooth ---
+  if (SerialBT.available()) {
+    dadosRecebidos = SerialBT.readStringUntil('\n');
+    dadosRecebidos.trim();
+
+    Serial.print("Comando recebido via Bluetooth: ");
+    Serial.println(dadosRecebidos);
+
+    if (dadosRecebidos == "1") {
+      Serial.println("Acionamento virtual recebido. Piscando o LED...");
+      piscarLed();
+      SerialBT.println("LED_PISCOU");
+    }
+  }
+ delay(20); // Delay do watchdog
+}
+ 
