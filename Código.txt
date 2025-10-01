@@ -32,7 +32,7 @@ void apagarLED() {
 // --- Configuração Inicial ---
 void setup() {
   Serial.begin(115200);
-  SerialBT.begin("COLOCARNOME");
+  SerialBT.begin("GREMIO");
 
   pinMode(pinoLed, OUTPUT);
   pinMode(pinoSwitch, INPUT_PULLUP); // Usa pull-up interno para evitar flutuação
