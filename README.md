@@ -8,6 +8,8 @@ Bem-vindo ao repositório da oficina do PET-EE! Este projeto demonstra como cria
     * Receber o status do botão físico (pressionado ou solto) em tempo real.
 
 ---
+[Clique aqui para baixar os Slides em PDF](SLIDES DA APRESENTAÇÃO.pdf)
+
 
 ## 🔌 Circuito
 
