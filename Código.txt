@@ -19,6 +19,16 @@ int ultimoEstadoSwitch = HIGH; // Pull-up mantém HIGH por padrão
 unsigned long ultimoTempoDebounce = 0;
 unsigned long delayDebounce = 50; // 50ms para considerar leitura estável
 
+void piscaLED() {
+    for(int i = 0; i< 10; i++){
+      digitalWrite(pinoLed, 1);
+      delay(500);
+      digitalWrite(pinoLed, 0);
+      delay(500);
+    }
+
+}
+
 // --- Função para piscar LED ---
 void acenderLED() {
     digitalWrite(pinoLed, 1);
@@ -32,7 +42,7 @@ void apagarLED() {
 // --- Configuração Inicial ---
 void setup() {
   Serial.begin(115200);
-  SerialBT.begin("GREMIO");
+  SerialBT.begin("COLOCARNOME");
 
   pinMode(pinoLed, OUTPUT);
   pinMode(pinoSwitch, INPUT_PULLUP); // Usa pull-up interno para evitar flutuação
